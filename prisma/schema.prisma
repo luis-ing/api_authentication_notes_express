@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model notes {
+  id                           Int       @id @default(autoincrement())
+  title                        String?   @db.VarChar(60)
+  content                      String?   @db.Text
+  isActive                     Boolean   @default(true)
+  dateCreated                  DateTime  @db.DateTime(0)
+  dateUpdated                  DateTime? @db.DateTime(0)
+  userCreated                  Int
+  userUpdated                  Int
+  user_notes_userCreatedTouser user      @relation("notes_userCreatedTouser", fields: [userCreated], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_notes_user")
+  user_notes_userUpdatedTouser user      @relation("notes_userUpdatedTouser", fields: [userUpdated], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_notes_user1")
+
+  @@index([userUpdated], map: "fk_notes_user1_idx")
+  @@index([userCreated], map: "fk_notes_user_idx")
+}
+
+model user {
+  id                            Int      @id @default(autoincrement())
+  name                          String?  @db.VarChar(60)
+  mail                          String?  @db.VarChar(50)
+  pass                          String?  @db.VarChar(150)
+  isActive                      Boolean  @default(true)
+  dateCreated                   DateTime @db.DateTime(0)
+  notes_notes_userCreatedTouser notes[]  @relation("notes_userCreatedTouser")
+  notes_notes_userUpdatedTouser notes[]  @relation("notes_userUpdatedTouser")
+}
